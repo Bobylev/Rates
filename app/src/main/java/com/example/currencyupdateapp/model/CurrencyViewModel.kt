@@ -17,6 +17,8 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
     @Inject
     lateinit var api: ApiAccess
 
+    private val mainCurrency = "EUR"
+
     private val _errorData: MutableLiveData<String> = MutableLiveData()
     val errorData : LiveData<String> = _errorData
 
@@ -69,7 +71,7 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
                 }
                 .map {
                     _errorData.postValue("OK")
-                    it.rates["EUR"] = 1f
+                    it.rates[mainCurrency] = 1f
                     return@map it
                 }
                 .subscribeBy(
@@ -96,6 +98,8 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
                                     )
                                 }
                             }
+                            list?.removeAll { currencyItem -> (currencyItem.currency != mainCurrency) && (dataMap[currencyItem.currency] == null) }
+
                             currenciesData.postValue(list)
                         }
                         Log.i("resultx", "OK")

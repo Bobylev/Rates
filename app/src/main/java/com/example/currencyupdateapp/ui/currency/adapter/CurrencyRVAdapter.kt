@@ -1,5 +1,7 @@
 package com.example.currencyupdateapp.ui.currency.adapter
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,10 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.currencyupdateapp.R
 import com.example.currencyupdateapp.ui.BindableAdapter
 import com.example.currencyupdateapp.util.CountriesCodes
-import com.jakewharton.rxbinding2.widget.RxTextView
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.currency_item.view.*
-import java.util.concurrent.TimeUnit
 
 
 class CurrencyRVAdapter(
@@ -23,6 +22,7 @@ class CurrencyRVAdapter(
     BindableAdapter<List<CurrencyItem>> {
 
     private var currencyItem = mutableListOf<CurrencyItem>()
+
 
     override fun setData(data: List<CurrencyItem>?) {
         if (data != null) {
@@ -56,14 +56,11 @@ class CurrencyRVAdapter(
             override fun getOldListSize() = oldList.size
             override fun getNewListSize() = newList.size
         })
-
         currencyItem.clear()
         newList.forEach {
             currencyItem.add(CurrencyItem(it.currency, it.value))
         }
-
         diff.dispatchUpdatesTo(this)
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserHolder {
@@ -83,33 +80,22 @@ class CurrencyRVAdapter(
             }
         }
 
-        //if (holder.adapterPosition == 0) {
-            val res = RxTextView.afterTextChangeEvents(holder.itemView.currencyCount)
-                .debounce(300, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+        holder.itemView.currencyCount.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
 
-                    if (it.editable().toString().isEmpty()) {
-                        holder.itemView.currencyCount.setText("0")
-                        return@subscribe
-                    }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
 
-                    var res = it.editable().toString().trimStart('0')
-                    if (it.editable().toString() != "0") {
-                        if (it.editable().toString() != it.editable().toString().trimStart('0')) {
-                            if(res.isEmpty()) res = "0"
-                            holder.itemView.currencyCount.setText(res)
-                        }
-                    }
-
-
-                    if (holder.adapterPosition == 0) {
-                        if(res.isEmpty()) res = "0"
-                        currencyItem[0].value = res.toFloat()
-                        afterTextChanged.invoke(res)
-                    }
-          //      }
-        }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (holder.adapterPosition == 0) {
+                    var res = s.toString()
+                    if (res.isEmpty()) res = "0"
+                    currencyItem[0].value = res.toFloatOrNull() ?: 0f
+                    afterTextChanged.invoke(res)
+                }
+            }
+        })
 
         holder.bind(currencyItem[position])
     }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.currencyupdateapp.R
@@ -39,7 +40,6 @@ class CurrencyListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         val adapter =
             CurrencyRVAdapter(itemClickCallback = fun(index: String) {
                 viewModel.setNewTop(index)
@@ -49,9 +49,7 @@ class CurrencyListFragment : BaseFragment() {
         currencyRecyclerView.layoutManager = LinearLayoutManager(activity)
         currencyRecyclerView.adapter = adapter
         (currencyRecyclerView.itemAnimator  as SimpleItemAnimator).supportsChangeAnimations = false
-
+        viewModel.errorData.observe(viewLifecycleOwner, Observer { data ->   showError(data) })
         viewModel.getBalances()
-
     }
-
 }

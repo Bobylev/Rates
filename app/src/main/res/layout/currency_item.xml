@@ -16,6 +16,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/currency_country_image"
         tools:srcCompat="@tools:sample/avatars" />
 
     <EditText
@@ -29,9 +30,11 @@
         android:textAlignment="textEnd"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:hint="@string/empty_currency"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAutofill="no" />
 
     <TextView
         android:id="@+id/countryText"
@@ -39,7 +42,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp"
-        android:text="TextView"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/countryImage"
@@ -51,7 +53,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
-        android:text="TextView"
         android:textColor="@android:color/darker_gray"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/countryImage"

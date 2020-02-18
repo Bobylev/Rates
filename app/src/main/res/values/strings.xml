@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CurrencyUpdateApp</string>
+    <string name="currency_screen">Rates</string>
+</resources>

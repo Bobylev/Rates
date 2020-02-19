@@ -31,11 +31,13 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
         val list = currenciesData.value?.toMutableList()
         if (list != null) {
             val index = list.indexOf(list.find { currencyItem -> currencyItem.currency == curr })
-            list.add(0, list[index])
-            list.removeAt(index + 1)
+            if(index  != -1) {
+                list.add(0, list[index])
+                list.removeAt(index + 1)
+                newTopValue = list[0].value
+                currenciesData.postValue(list)
+            }
         }
-        newTopValue = list?.get(0)?.value ?: 1f
-        currenciesData.postValue(list)
     }
 
     fun setNewCoefficient(newValue: String) {

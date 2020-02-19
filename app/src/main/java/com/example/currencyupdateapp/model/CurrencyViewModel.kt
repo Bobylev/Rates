@@ -1,6 +1,5 @@
 package com.example.currencyupdateapp.model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.currencyupdateapp.network.ApiAccess
@@ -20,7 +19,7 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
     private val mainCurrency = "EUR"
 
     private val _errorData: MutableLiveData<String> = MutableLiveData()
-    val errorData : LiveData<String> = _errorData
+    val errorData: LiveData<String> = _errorData
 
     private val _currencyRunner: MutableLiveData<Boolean> = MutableLiveData(false)
 
@@ -32,18 +31,18 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
         val list = currenciesData.value?.toMutableList()
         if (list != null) {
             val index = list.indexOf(list.find { currencyItem -> currencyItem.currency == curr })
-            list[index] = list[0].also { list[0] = list[index] }
+            list.add(0, list[index])
+            list.removeAt(index + 1)
         }
         newTopValue = list?.get(0)?.value ?: 1f
         currenciesData.postValue(list)
     }
 
-    fun setNewCoeficient(newValue: String) {
+    fun setNewCoefficient(newValue: String) {
         newTopValue = if (newValue.isEmpty()) 0f else newValue.toFloat()
         val list = currenciesData.value?.toMutableList()
         list?.get(0)?.value = newTopValue
-
-        Log.i("resultx", newValue)
+        newData(list, getCoefficient())
     }
 
     private fun getCoefficient(): Float {
@@ -55,10 +54,32 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
         return result
     }
 
+    @Synchronized
+    private fun newData(list: MutableList<CurrencyItem>?, coefficient: Float) {
+        for (item in dataMap) {
+            val res =
+                list?.find { currencyItem -> currencyItem.currency == item.key }
+            if (res != null) {
+                if (list.indexOf(res) != 0) {
+                    res.value = round(item.value * coefficient * 100) / 100
+                }
+            } else {
+                list?.add(
+                    CurrencyItem(
+                        item.key,
+                        round(item.value * coefficient * 100) / 100
+                    )
+                )
+            }
+        }
+        list?.removeAll { currencyItem -> (currencyItem.currency != mainCurrency) && (dataMap[currencyItem.currency] == null) }
+        currenciesData.postValue(list)
+    }
+
     fun getBalances() {
         if (_currencyRunner.value == false) {
             _currencyRunner.postValue(true)
-            disposible.add(Observable.interval(1, TimeUnit.SECONDS)
+            disposable.add(Observable.interval(1, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .switchMap { api.getCurrency() }
                 .observeOn(Schedulers.io())
@@ -66,7 +87,6 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
                     (true.also {
                         _errorData.postValue(e.localizedMessage)
                         Thread.sleep(2000)
-                        Log.i("resultx", "wait" + e.localizedMessage)
                     })
                 }
                 .map {
@@ -79,30 +99,9 @@ class CurrencyViewModel @Inject constructor() : BaseViewModel() {
                         dataMap = it.rates
                         val list: MutableList<CurrencyItem>? =
                             currenciesData.value ?: mutableListOf()
-
-                        val coef = getCoefficient()
                         if (dataMap.isNotEmpty()) {
-                            for (item in dataMap) {
-                                val res =
-                                    list?.find { currencyItem -> currencyItem.currency == item.key }
-                                if (res != null) {
-                                    if (list.indexOf(res) != 0) {
-                                        res.value = round(item.value * coef * 100) / 100
-                                    }
-                                } else {
-                                    list?.add(
-                                        CurrencyItem(
-                                            item.key,
-                                            round(item.value * coef * 100) / 100
-                                        )
-                                    )
-                                }
-                            }
-                            list?.removeAll { currencyItem -> (currencyItem.currency != mainCurrency) && (dataMap[currencyItem.currency] == null) }
-
-                            currenciesData.postValue(list)
+                            newData(list, getCoefficient())
                         }
-                        Log.i("resultx", "OK")
                     },
                     onError = {
                         _currencyRunner.postValue(false)

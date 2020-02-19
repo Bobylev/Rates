@@ -45,7 +45,7 @@ class CurrencyListFragment : BaseFragment() {
                 viewModel.setNewTop(index)
                 currencyRecyclerView.scrollToPosition(0)
             },
-                afterTextChanged = fun(newValue: String)  { viewModel.setNewCoeficient(newValue)})
+                afterTextChanged = fun(newValue: String)  { viewModel.setNewCoefficient(newValue)})
         currencyRecyclerView.layoutManager = LinearLayoutManager(activity)
         currencyRecyclerView.adapter = adapter
         (currencyRecyclerView.itemAnimator  as SimpleItemAnimator).supportsChangeAnimations = false

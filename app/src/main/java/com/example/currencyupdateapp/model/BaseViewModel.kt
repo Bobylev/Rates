@@ -5,10 +5,10 @@ import io.reactivex.disposables.CompositeDisposable
 
 open class BaseViewModel: ViewModel() {
 
-    val disposible = CompositeDisposable()
+    val disposable = CompositeDisposable()
 
     override fun onCleared() {
-        disposible.clear()
+        disposable.clear()
         super.onCleared()
     }
 

@@ -2,7 +2,6 @@ package com.example.currencyupdateapp.ui.currency.adapter
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,8 +25,6 @@ class CurrencyRVAdapter(
 
     override fun setData(data: List<CurrencyItem>?) {
         if (data != null) {
-            Log.i("result", "redraw")
-
             if (currencyItem.isNotEmpty()) {
                 if (data[0].currency == currencyItem[0].currency) {
                     data[0].value = currencyItem[0].value
@@ -76,6 +73,12 @@ class CurrencyRVAdapter(
         holder.itemView.setOnClickListener {
             if (holder.adapterPosition != RecyclerView.NO_POSITION) {
                 holder.itemView.currencyCount.requestFocus()
+                itemClickCallback.invoke(currencyItem[holder.adapterPosition].currency)
+            }
+        }
+
+        holder.itemView.currencyCount.setOnFocusChangeListener { _, b ->
+            if (b) {
                 itemClickCallback.invoke(currencyItem[holder.adapterPosition].currency)
             }
         }
